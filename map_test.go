@@ -1,10 +1,11 @@
 package concurent
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInPlaceMap(t *testing.T) {
@@ -27,7 +28,7 @@ func TestInPlaceMap(t *testing.T) {
 		}}
 
 		for _, test := range tests {
-			InPlaceMap(4, test.data, func(x *int) {
+			_ = InPlaceMap(4, test.data, func(x *int) {
 				*x = *x * 4
 			})
 			assert.Equal(t, test.expected, test.data)
@@ -36,7 +37,7 @@ func TestInPlaceMap(t *testing.T) {
 	t.Run("concurrency", func(t *testing.T) {
 		data := []int{1, 2, 3, 4, 5, 6, 7, 8}
 		start := time.Now()
-		InPlaceMap(4, data, func(x *int) {
+		_ = InPlaceMap(4, data, func(x *int) {
 			*x = *x * 2
 			time.Sleep(time.Millisecond * 4)
 		})
@@ -45,7 +46,7 @@ func TestInPlaceMap(t *testing.T) {
 	})
 	t.Run("large", func(t *testing.T) {
 		data := make([]int, 1000)
-		InPlaceMap(3, data, func(x *int) {
+		_ = InPlaceMap(3, data, func(x *int) {
 			*x = 2
 		})
 		for _, v := range data {
@@ -102,7 +103,7 @@ func BenchmarkInPlaceMap(b *testing.B) {
 	data := make([]int, 1024)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		InPlaceMap(4, data, func(x *int) {
+		_ = InPlaceMap(4, data, func(x *int) {
 			*x = 100
 			*x = *x * 2
 		})
