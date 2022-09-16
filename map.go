@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// DefGoroutines default goroutines count
+// DefGoroutines default goroutines count(runtime.NumCPU())
 var DefGoroutines = runtime.NumCPU()
 
 // InPlaceMap calls function once for each item in sequence. The function takes a reference to the item, so that any modifications done to the item will appear in sequence.
