@@ -35,14 +35,15 @@ func TestInPlaceMap(t *testing.T) {
 		}
 	})
 	t.Run("concurrency", func(t *testing.T) {
+		const duration = time.Millisecond * 12
 		data := []int{1, 2, 3, 4, 5, 6, 7, 8}
 		start := time.Now()
 		_ = InPlaceMap(4, data, func(x *int) {
 			*x = *x * 2
-			time.Sleep(time.Millisecond * 4)
+			time.Sleep(duration)
 		})
-		lineTime := time.Millisecond * time.Duration(4*len(data))
-		assert.True(t, time.Since(start) < lineTime)
+		lineTime := duration * time.Duration(len(data))
+		assert.True(t, time.Since(start) < lineTime, time.Since(start))
 	})
 	t.Run("large", func(t *testing.T) {
 		data := make([]int, 1000)
