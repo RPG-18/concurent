@@ -3,7 +3,6 @@ package concurrent
 import (
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,17 +32,6 @@ func TestInPlaceMap(t *testing.T) {
 			})
 			assert.Equal(t, test.expected, test.data)
 		}
-	})
-	t.Run("concurrency", func(t *testing.T) {
-		const duration = time.Millisecond * 12
-		data := []int{1, 2, 3, 4, 5, 6, 7, 8}
-		start := time.Now()
-		_ = InPlaceMap(4, data, func(x *int) {
-			*x = *x * 2
-			time.Sleep(duration)
-		})
-		lineTime := duration * time.Duration(len(data))
-		assert.True(t, time.Since(start) < lineTime, time.Since(start))
 	})
 	t.Run("large", func(t *testing.T) {
 		data := make([]int, 1000)
