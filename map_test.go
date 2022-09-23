@@ -27,7 +27,7 @@ func TestInPlaceMap(t *testing.T) {
 		}}
 
 		for _, test := range tests {
-			_ = InPlaceMap(4, test.data, func(x *int) {
+			_ = Map(4, test.data, func(x *int) {
 				*x = *x * 4
 			})
 			assert.Equal(t, test.expected, test.data)
@@ -35,7 +35,7 @@ func TestInPlaceMap(t *testing.T) {
 	})
 	t.Run("large", func(t *testing.T) {
 		data := make([]int, 1000)
-		_ = InPlaceMap(3, data, func(x *int) {
+		_ = Map(3, data, func(x *int) {
 			*x = 2
 		})
 		for _, v := range data {
@@ -64,7 +64,7 @@ func TestMap(t *testing.T) {
 		}}
 
 		for _, test := range tests {
-			result, err := Map(4, test.data, func(s int) string {
+			result, err := Mapped(4, test.data, func(s int) string {
 				return strconv.Itoa(s)
 			})
 
@@ -78,7 +78,7 @@ func TestMap(t *testing.T) {
 			data[i] = i
 		}
 
-		result, err := Map(4, data, func(s int) string {
+		result, err := Mapped(4, data, func(s int) string {
 			return strconv.Itoa(s)
 		})
 		assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestDefInPlaceMap(t *testing.T) {
 		}}
 
 		for _, test := range tests {
-			DefInPlaceMap(test.data, func(x *int) {
+			DefMap(test.data, func(x *int) {
 				*x = *x * 4
 			})
 			assert.Equal(t, test.expected, test.data)
@@ -136,7 +136,7 @@ func TestDefMap(t *testing.T) {
 		}}
 
 		for _, test := range tests {
-			result, err := DefMap(test.data, func(s int) string {
+			result, err := DefMapped(test.data, func(s int) string {
 				return strconv.Itoa(s)
 			})
 
@@ -146,13 +146,91 @@ func TestDefMap(t *testing.T) {
 	})
 }
 
+func TestMappedReduced(t *testing.T) {
+	t.Run("ordered", func(t *testing.T) {
+		t.Run("result int", func(t *testing.T) {
+			result, err := MappedReduced(3, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(x int) int {
+				return x * 2
+			}, func(r *int, x int) {
+				*r = *r + x
+			}, OrderedReduce)
+
+			ss := 0
+			for _, v := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9} {
+				ss = ss + v*2
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, ss, result)
+		})
+		t.Run("result string", func(t *testing.T) {
+			result, err := MappedReduced(3, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(x int) string {
+				return strconv.Itoa(x)
+			}, func(r *string, x string) {
+				*r = *r + x
+			}, OrderedReduce)
+			assert.NoError(t, err)
+			assert.Equal(t, "123456789", result)
+		})
+	})
+
+	t.Run("unordered", func(t *testing.T) {
+		t.Run("result int", func(t *testing.T) {
+			result, err := MappedReduced(3, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(x int) int {
+				return x * 2
+			}, func(r *int, x int) {
+				*r = *r + x
+			}, UnorderedReduce)
+
+			ss := 0
+			for _, v := range []int{1, 2, 3, 4, 5, 6, 7, 8, 9} {
+				ss = ss + v*2
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, ss, result)
+		})
+		t.Run("result string", func(t *testing.T) {
+			result, err := MappedReduced(3, []int{1, 2, 3, 4, 5, 6, 7, 8, 9}, func(x int) string {
+				return strconv.Itoa(x)
+			}, func(r *string, x string) {
+				*r = *r + x
+			}, UnorderedReduce)
+			assert.NoError(t, err)
+			assert.Len(t, result, 9)
+			assert.NotEqual(t, "123456789", result)
+		})
+	})
+}
+
 func BenchmarkInPlaceMap(b *testing.B) {
 	data := make([]int, 1024)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = InPlaceMap(4, data, func(x *int) {
+		_ = Map(4, data, func(x *int) {
 			*x = 100
 			*x = *x * 2
 		})
 	}
+}
+
+func BenchmarkMappedReduced(b *testing.B) {
+	data := make([]int, 1024*12)
+	for i := range data {
+		data[i] = i
+	}
+	b.ResetTimer()
+
+	b.Run("ordered", func(b *testing.B) {
+		MappedReduced(6, data, func(x int) int {
+			return x * 2
+		}, func(r *int, x int) {
+			*r = +x
+		}, OrderedReduce)
+	})
+	b.Run("unordered", func(b *testing.B) {
+		MappedReduced(6, data, func(x int) int {
+			return x * 2
+		}, func(r *int, x int) {
+			*r = +x
+		}, UnorderedReduce)
+	})
 }
