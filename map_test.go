@@ -1,4 +1,4 @@
-package concurent
+package concurrent
 
 import (
 	"strconv"
@@ -96,6 +96,64 @@ func TestMap(t *testing.T) {
 		assert.NoError(t, err)
 		for i := 0; i < len(result); i++ {
 			assert.Equal(t, strconv.Itoa(i), result[i])
+		}
+	})
+}
+
+func TestDefInPlaceMap(t *testing.T) {
+	t.Run("calculation", func(t *testing.T) {
+		tests := []struct {
+			data     []int
+			expected []int
+		}{{
+			data:     []int{},
+			expected: []int{},
+		}, {
+			data:     []int{1},
+			expected: []int{4},
+		}, {
+			data:     []int{1, 1},
+			expected: []int{4, 4},
+		}, {
+			data:     []int{1, 1, 1, 1, 1},
+			expected: []int{4, 4, 4, 4, 4},
+		}}
+
+		for _, test := range tests {
+			DefInPlaceMap(test.data, func(x *int) {
+				*x = *x * 4
+			})
+			assert.Equal(t, test.expected, test.data)
+		}
+	})
+}
+
+func TestDefMap(t *testing.T) {
+	t.Run("strconv", func(t *testing.T) {
+		tests := []struct {
+			data     []int
+			expected []string
+		}{{
+			data:     []int{},
+			expected: nil,
+		}, {
+			data:     []int{1},
+			expected: []string{"1"},
+		}, {
+			data:     []int{1, 2},
+			expected: []string{"1", "2"},
+		}, {
+			data:     []int{1, 2, 3, 4, 5, 6},
+			expected: []string{"1", "2", "3", "4", "5", "6"},
+		}}
+
+		for _, test := range tests {
+			result, err := DefMap(test.data, func(s int) string {
+				return strconv.Itoa(s)
+			})
+
+			assert.NoError(t, err)
+			assert.Equal(t, test.expected, result)
 		}
 	})
 }
