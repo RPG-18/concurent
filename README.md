@@ -1,7 +1,7 @@
 # Simple MapReduce on Go
 
 [![Test](https://github.com/RPG-18/concurent/actions/workflows/concurrent.yml/badge.svg?branch=main)](https://github.com/RPG-18/concurrent/actions)
-[![GoDoc](https://pkg.go.dev/badge/github.com/RPG-18/concurent?status.svg)](https://pkg.go.dev/github.com/RPG-18/concurent?tab=doc)
+[![GoDoc](https://pkg.go.dev/badge/github.com/RPG-18/concurrent?status.svg)](https://pkg.go.dev/github.com/RPG-18/concurrent?tab=doc)
 
 
 Package concurrent provides high-level APIs for concurrent programming. Package implemented [Qt Concurrent API](https://doc.qt.io/qt-6/qtconcurrent-index.html)
